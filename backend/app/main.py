@@ -1,14 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import auth
+
+from .forms.router import router as router 
 
 import uvicorn
 import os
 
 app = FastAPI (
-    titlte = 'Мониторинг топографической документации',
+    title = 'Мониторинг топографической документации',
     version='0.1'
 )
+app.include_router(router)
 # app.include_router(auth.route, prefix='/api', tags=['Аутентификация'])
 
 @app.get('/')

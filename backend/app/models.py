@@ -1,10 +1,9 @@
 import enum
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey, Text, Enum
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session, relationship
-
-Base = declarative_base()
+from typing import Optional, List
+from sqlalchemy import String, Integer, DateTime, Text, Enum, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from backend.app.database import Base
 
 class TaskStatus(str, enum.Enum):
     TODO = "TODO" 
@@ -17,45 +16,67 @@ class UserRole(str, enum.Enum):
     validator = 'Редактор'
 
 class User(Base):
-    __tablename__ = 'Users' 
+    __tablename__ = 'users'
 
-    id = Column(Integer, primary_key = True, index = True)
-    name = Column(String(50), nullable = False, unique= True)
-    surname = Column(String(50), nullable = False, unique= True)
-    role = Column(Enum(UserRole), default=None)
-    hash_pswrd = Column(String(255), nullable = False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    surname: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    role: Mapped[Optional[UserRole]] = mapped_column(Enum(UserRole), default=None)
+    hash_pswrd: Mapped[str] = mapped_column(String(255), nullable=False)
 
-    # relationships
-    tasks = relationship("Task", back_populates="assignee")
-
+    # Relationships
+    assigned_tasks: Mapped[List["Task"]] = relationship(
+        "Task", 
+        foreign_keys="[Task.assignee_id]", 
+        back_populates="assignee"
+    )
+    created_tasks: Mapped[List["Task"]] = relationship(
+        "Task", 
+        foreign_keys="[Task.created_by_id]", 
+        back_populates="creator"
+    )
 
 class Forms(Base):
-    __tablename__ = 'Forms'
+    __tablename__ = 'forms'
 
-    id = Column(Integer, primary_key=True, nullable=False, unique=True, index=True)
-    title = Column(String, nullable=False)
-    content = Column(Text)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[Optional[str]] = mapped_column(Text)
 
-    # relationships
-    task = relationship("Task", back_populates='task')
-
+    # Relationship
+    task: Mapped[Optional["Task"]] = relationship(
+        "Task", 
+        back_populates='form', 
+        uselist=False
+    )
+    #todo: create relations 
 
 class Task(Base):
-    __tablename__ = 'Tasks'
+    __tablename__ = 'tasks'
 
-    id = Column(Integer, primary_key=True, nullable=False, unique=True, index=True)
-    title = Column(String, nullable = False)
-    content = Column(Text)
-    status = Column(Enum(TaskStatus), default=TaskStatus.TODO) 
-    priority = Column(Integer, default = 1)
-    assignee_id = Column(Integer, ForeignKey(User.id))
-    created_by_id = Column(Integer, ForeignKey(User.id))
-    due_date = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.now()) 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[Optional[str]] = mapped_column(Text)
+    status: Mapped[TaskStatus] = mapped_column(Enum(TaskStatus), default=TaskStatus.TODO)
+    priority: Mapped[int] = mapped_column(Integer, default=1)
+    assignee_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
+    created_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
+    form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
+    due_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    # relationships
-    assignee = relationship("Users", foreign_keys=[assignee_id], back_populates='assigned_tasks')   
-    creator = relationship("Users", foreign_keys=[created_by_id], back_populates='created_tasks')
-
-
-    
+    # Relationships
+    assignee: Mapped[Optional["User"]] = relationship(
+        "User", 
+        foreign_keys=[assignee_id], 
+        back_populates='assigned_tasks'
+    )   
+    creator: Mapped[Optional["User"]] = relationship(
+        "User", 
+        foreign_keys=[created_by_id], 
+        back_populates='created_tasks'
+    )
+    form: Mapped[Optional["Forms"]] = relationship(
+        "Forms", 
+        back_populates='task'
+    )
