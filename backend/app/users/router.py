@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from backend.app.users.service import UserDAO
 from backend.app.models import UserRole
 from backend.app.users.rb import RBUser
-from backend.app.users.schemas import SSUser
+from backend.app.users.schemas import SSUser, SSUserWithTasks
 from typing import List, Optional
 
 
@@ -28,3 +28,9 @@ async def get_user_by_id(id: int) -> SSUser:
         raise HTTPException(status_code=404, detail="User not found")
     return SSUser.model_validate(user)
 
+@router.get('/{id}/tasks')
+async def get_users_tasks(id:int) -> SSUserWithTasks:
+      tasks = await UserDAO.find_task_data(user_id=id)
+      if not tasks:
+            raise HTTPException(status_code=404, detail="No tasks found")
+      return tasks

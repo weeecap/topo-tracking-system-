@@ -1,6 +1,6 @@
 from sqlalchemy.future import select 
-from sqlalchemy.orm import DeclarativeBase
-from typing import Optional
+from sqlalchemy.orm import joinedload, selectinload
+from typing import List, Optional
 
 from backend.app.database import async_session_maker
 
@@ -28,3 +28,5 @@ class BaseDAO:
             query = select(cls.model).filter_by(id=data_id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
+        
+
