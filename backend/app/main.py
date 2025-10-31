@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 
-from .forms.router import router as router 
+from .users.router import router as router
+from .users.service import UserDAO
 
 import uvicorn
 import os
@@ -10,8 +11,8 @@ app = FastAPI (
     title = 'Мониторинг топографической документации',
     version='0.1'
 )
-app.include_router(router)
-# app.include_router(auth.route, prefix='/api', tags=['Аутентификация'])
+
+app.include_router(router, prefix='/api')
 
 @app.get('/')
 async def root():
