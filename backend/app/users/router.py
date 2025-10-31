@@ -27,3 +27,4 @@ async def get_user_by_id(id: int) -> SSUser:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return SSUser.model_validate(user)
+
