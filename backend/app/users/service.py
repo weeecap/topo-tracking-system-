@@ -1,7 +1,8 @@
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from typing import Optional
-from backend.app.users.dao.base import BaseDAO
+
+from backend.app.dao.base import BaseDAO
 from backend.app.models import User 
 from backend.app.database import async_session_maker
 from backend.app.users.schemas import SSUserWithTasks
@@ -27,11 +28,6 @@ class UserDAO(BaseDAO):
             user_with_tasks = SSUserWithTasks.model_validate(user)
             return user_with_tasks
         
-    # TODO add user function and endpoint 
-    @classmethod
-    async def add_user(cls):
-        async with async_session_maker() as session:
-            return None 
 
 
         

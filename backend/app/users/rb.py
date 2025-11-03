@@ -15,10 +15,12 @@ class RBUser:
         self.hash_pswrd=hash_pswrd
 
     def to_dict(self) -> dict:
-        data = {'id':self.id, 
+        data = {
+                'id':self.id, 
                 'name':self.name,
                 'surname':self.surname, 
                 'role':self.role,
-                'hash_pswrd':self.hash_pswrd}
+                'hash_pswrd':self.hash_pswrd
+                }
         filtered = {key: value for key, value in data.items() if value is not None}
         return filtered

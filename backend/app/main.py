@@ -1,18 +1,35 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .users.router import router as router
-from .users.service import UserDAO
-
+from pathlib import Path
+from dotenv import load_dotenv
 import uvicorn
 import os
+
+from .users.router import router as user_router
+from .tasks.router import router as task_router
 
 app = FastAPI (
     title = 'Мониторинг топографической документации',
     version='0.1'
 )
 
-app.include_router(router, prefix='/api')
+env_path = Path(__file__).resolve().parent.parent.parent / ".env.local"
+load_dotenv(env_path, override=True)
+
+origins_str = os.getenv('origins')
+origins = [origin.strip() for origin in origins_str.split(',')] if origins_str else []
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(user_router, prefix='')
+app.include_router(task_router, prefix='')
 
 @app.get('/')
 async def root():
@@ -36,37 +53,5 @@ if __name__ == '__main__':
     )
 
 
-# from fastapi import FastAPI
-# from fastapi.responses import FileResponse
-# from schemas import UserRegistration, Task, Forms
 
-# app = FastAPI(
-#     title='Мониторинг топографической документации',
-#     version='0.1'
-# )
-
-
-# @app.get('/login')
-# async def log(user: UserRegistration):
-#     return {'message': 'User registration succesfully', 'user': user}
-
-# @app.get('/tasks')
-# async def tasks(tasks:Task):
-#     # необходимо создать модель базы
-#     # через алхимика, привязать конкретные таски 
-#     # к конкретному исполнителю, начальник должен видеть всё
-#     return None 
-
-# @app.get('/forms')
-# async def forms(forms:Forms):
-#     # создать модель формуляра, связать её редактирование через онлайн ворд (предварительно написав его)
-#     # предусмотреть редактирование, сохранение, ассайн 
-#     # через алхимик
-#     return None
-
-# @app.get('/kanban')
-# async def kanban():
-#     # создать модель доски, связать её с текущими задачами 
-#     # для каждого исполнителя, предусмотреть весь функционал
-#     return None 
 

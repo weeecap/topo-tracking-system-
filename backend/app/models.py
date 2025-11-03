@@ -1,8 +1,9 @@
 import enum
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from sqlalchemy import String, Integer, DateTime, Text, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from backend.app.database import Base
 
 class TaskStatus(str, enum.Enum):
@@ -12,7 +13,7 @@ class TaskStatus(str, enum.Enum):
     done = 'Выполнено'
 
 class UserRole(str, enum.Enum):
-    cartographer = 'Картограф'
+    cartographer = 'Картограф' 
     validator = 'Редактор'
 
 class User(Base):
@@ -49,7 +50,7 @@ class Forms(Base):
         back_populates='form', 
         uselist=False
     )
-    #todo: create relations 
+    #TODO: create relations 
 
 class Task(Base):
     __tablename__ = 'tasks'
@@ -61,7 +62,7 @@ class Task(Base):
     priority: Mapped[int] = mapped_column(Integer, default=1)
     assignee_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
     created_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
-    form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
+    # form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
     due_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
@@ -80,3 +81,4 @@ class Task(Base):
         "Forms", 
         back_populates='task'
     )
+

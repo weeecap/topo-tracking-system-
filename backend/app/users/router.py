@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query, HTTPException 
+from typing import List, Optional
+
 from backend.app.users.service import UserDAO
 from backend.app.models import UserRole
 from backend.app.users.rb import RBUser
-from backend.app.users.schemas import SSUser, SSUserWithTasks
-from typing import List, Optional
+from backend.app.users.schemas import SSUser, SSUserWithTasks, SSUser_Add
 
 
 router = APIRouter(prefix='/users')
@@ -34,3 +35,19 @@ async def get_users_tasks(id:int) -> SSUserWithTasks:
       if not tasks:
             raise HTTPException(status_code=404, detail="No tasks found")
       return tasks
+
+@router.post('/add/')
+async def add_user(user:SSUser_Add) -> dict:
+      check = await UserDAO.add_data(**user.model_dump())
+      if check:
+            return {'messagee':'Пользователь добавлен'}
+      else:
+            return {'messagee':'Ошибка при добавлении пользователя'}
+      
+@router.delete('/delete/')
+async def delete_data(user_id:int) -> dict:
+      check = await UserDAO.delete_data(id=user_id)
+      if check:
+            return {'messagee':'Пользовательские данные удалены'}
+      else:
+            return {'messagee':'Ошибка удалении'}
