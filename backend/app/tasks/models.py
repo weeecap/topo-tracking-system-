@@ -1,10 +1,16 @@
 import enum
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import Optional, TYPE_CHECKING
 from sqlalchemy import String, Integer, DateTime, Text, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.database import Base
+
+if TYPE_CHECKING:
+    from backend.app.users.models import User
+    from backend.app.forms.models import Forms
+
+
 
 class TaskStatus(str, enum.Enum):
     TODO = "TODO" 
@@ -12,45 +18,6 @@ class TaskStatus(str, enum.Enum):
     review = 'В проверке'
     done = 'Выполнено'
 
-class UserRole(str, enum.Enum):
-    cartographer = 'Картограф' 
-    validator = 'Редактор'
-
-class User(Base):
-    __tablename__ = 'users'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    surname: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    role: Mapped[Optional[UserRole]] = mapped_column(Enum(UserRole), default=None)
-    hash_pswrd: Mapped[str] = mapped_column(String(255), nullable=False)
-
-    # Relationships
-    assigned_tasks: Mapped[List["Task"]] = relationship(
-        "Task", 
-        foreign_keys="[Task.assignee_id]", 
-        back_populates="assignee"
-    )
-    created_tasks: Mapped[List["Task"]] = relationship(
-        "Task", 
-        foreign_keys="[Task.created_by_id]", 
-        back_populates="creator"
-    )
-
-class Forms(Base):
-    __tablename__ = 'forms'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    title: Mapped[str] = mapped_column(String, nullable=False)
-    content: Mapped[Optional[str]] = mapped_column(Text)
-
-    # Relationship
-    task: Mapped[Optional["Task"]] = relationship(
-        "Task", 
-        back_populates='form', 
-        uselist=False
-    )
-    #TODO: create relations 
 
 class Task(Base):
     __tablename__ = 'tasks'
@@ -62,7 +29,7 @@ class Task(Base):
     priority: Mapped[int] = mapped_column(Integer, default=1)
     assignee_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
     created_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
-    # form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
+    form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
     due_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
@@ -81,4 +48,3 @@ class Task(Base):
         "Forms", 
         back_populates='task'
     )
-

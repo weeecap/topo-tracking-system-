@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 from typing import Optional
 
 from backend.app.dao.base import BaseDAO
-from backend.app.models import User 
+from backend.app.users.models import User 
 from backend.app.database import async_session_maker
 from backend.app.users.schemas import SSUserWithTasks
 

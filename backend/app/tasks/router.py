@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query, HTTPException 
 from typing import List, Optional
-from datetime import datetime, timezone, tzinfo
+from datetime import datetime
 
-from backend.app.tasks.schemas import SSTask
+from backend.app.tasks.schemas import SSTask, SSUpdateTask
 from backend.app.tasks.service import TaskDAO
 from backend.app.tasks.rb import RBTask
 
@@ -59,6 +59,22 @@ async def delete_task(task_id:int) -> dict:
                 return {'message': 'Задача удалена'}
         else:
                 return  {'message': 'Ошибка при удалении задачи'}
+        
+      
+@router.put('/update/')
+async def update_user_data(id:int, update_data:SSUpdateTask) -> dict:
+      filter_by = {'id':id}
+      update_values = {k: v for k, v in update_data.model_dump().items() if v is not None}
+
+      if not update_values:
+            raise HTTPException(status_code=400, detail='No data provided for update')
+      
+      data =  await TaskDAO.update_data(filter_by, **update_values)
+
+      if data == 0:
+            raise HTTPException(status_code=400, detail='Task not found')
+      
+      return {"status": "success", "updated_fields": list(update_values.keys())}
                 
         
         

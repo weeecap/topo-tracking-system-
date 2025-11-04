@@ -13,8 +13,6 @@ from os.path import dirname, abspath
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 from database import DATABASE_URL, Base
-from models import TaskStatus, UserRole, User, Forms, Task
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import List, Optional
 
 from backend.app.users.service import UserDAO
-from backend.app.models import UserRole
+from backend.app.users.models import UserRole
 from backend.app.users.rb import RBUser
-from backend.app.users.schemas import SSUser, SSUserWithTasks, SSUser_Add
+from backend.app.users.schemas import SSUser, SSUserWithTasks, SSUser_Add, User_Update
 
 
 router = APIRouter(prefix='/users')
@@ -45,9 +45,24 @@ async def add_user(user:SSUser_Add) -> dict:
             return {'messagee':'Ошибка при добавлении пользователя'}
       
 @router.delete('/delete/')
-async def delete_data(user_id:int) -> dict:
+async def delete_user(user_id:int) -> dict:
       check = await UserDAO.delete_data(id=user_id)
       if check:
             return {'messagee':'Пользовательские данные удалены'}
       else:
             return {'messagee':'Ошибка удалении'}
+      
+@router.put('/update/')
+async def update_user_data(id:int, update_data:User_Update) -> dict:
+      filter_by = {'id':id}
+      update_values = {k: v for k, v in update_data.model_dump().items() if v is not None}
+
+      if not update_values:
+            raise HTTPException(status_code=400, detail='No data provided for update')
+      
+      data =  await UserDAO.update_data(filter_by, **update_values)
+
+      if data == 0:
+            raise HTTPException(status_code=400, detail='User not found')
+      
+      return {"status": "success", "updated_fields": list(update_values.keys())}
