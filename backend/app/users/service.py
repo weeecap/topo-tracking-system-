@@ -27,7 +27,13 @@ class UserDAO(BaseDAO):
             
             user_with_tasks = SSUserWithTasks.model_validate(user)
             return user_with_tasks
-        
+
+    @classmethod
+    async def original_user(cls, name:str, surname:str):
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(name=name, surname=surname)
+            result = await session.execute(query)
+            return result.scalar_one_or_none()        
 
 
         

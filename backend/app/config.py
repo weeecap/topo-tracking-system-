@@ -11,8 +11,8 @@ class Settings:
     DB_NAME: str = os.getenv('DB_NAME') #type: ignore
     DB_USER: str = os.getenv('DB_USER') #type: ignore
     DB_PASSWORD: str = os.getenv('DB_PASSWORD') #type: ignore
-    SECRET_KEY: str
-    ALGORITH:str
+    SECRET_KEY: str = os.getenv('SECRET_KEY') #type: ignore
+    ALGORITHM:str = os.getenv('ALGORITHM') #type: ignore
 
 settings = Settings()
 
@@ -21,4 +21,4 @@ def get_db_url():
             f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")
 
 def get_auth_data():
-    return {'secret_key':settings.SECRET_KEY, 'algorithm':settings.ALGORITH}
+    return {'secret_key':settings.SECRET_KEY, 'algorithm':settings.ALGORITHM}

@@ -29,7 +29,7 @@ class Task(Base):
     priority: Mapped[int] = mapped_column(Integer, default=1)
     assignee_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
     created_by_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('users.id'))
-    form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.id'))
+    form_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('forms.form_id'))
     due_date: Mapped[Optional[datetime]] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
@@ -46,5 +46,6 @@ class Task(Base):
     )
     form: Mapped[Optional["Forms"]] = relationship(
         "Forms", 
+        foreign_keys=[form_id],
         back_populates='task'
     )

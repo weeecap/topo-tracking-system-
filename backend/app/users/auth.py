@@ -3,10 +3,11 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone 
 
 from backend.app.config import get_auth_data
+from backend.app.users.service import UserDAO
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecate="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def password_hash(password: str) -> str:
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -19,3 +20,9 @@ def create_acces_token(data:dict) -> str:
     auth_data = get_auth_data()
     encode_jwt = jwt.encode(to_encode, auth_data['secret_key'], algorithm=auth_data['algorithm'])
     return encode_jwt 
+
+async def authentification_user(name:str, surname:str, password:str):
+    user = await UserDAO.original_user(name=name, surname=surname)
+    if not user or verify_password(plain_password=password, hashed_password=user.password) is False:
+        return None 
+    return user 

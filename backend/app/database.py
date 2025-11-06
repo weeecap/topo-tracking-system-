@@ -17,16 +17,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 int_pk = Annotated[int, mapped_column(primary_key=True)]
 created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 
-def import_all_models():
-
-    import backend.app.users.models 
-    import backend.app.forms.models
-
-    import backend.app.tasks.models
-    import backend.app.auth.models
-
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 Base = declarative_base()
-import_all_models()

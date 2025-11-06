@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, Query, HTTPException 
+from fastapi import APIRouter, Depends, Query, HTTPException, Response, status
 from typing import List, Optional
 
 from backend.app.users.service import UserDAO
 from backend.app.users.models import UserRole
 from backend.app.users.rb import RBUser
-from backend.app.users.schemas import SSUser, SSUserWithTasks, SSUser_Add, User_Update
+from backend.app.users.auth import authentification_user, create_acces_token, get_password_hash
+from backend.app.users.schemas import Registration, SSAuth, SSUser, SSUser_Add, SSUserWithTasks, User_Update
+
 
 
 router = APIRouter(prefix='/users')
@@ -66,3 +68,22 @@ async def update_user_data(id:int, update_data:User_Update) -> dict:
             raise HTTPException(status_code=400, detail='User not found')
       
       return {"status": "success", "updated_fields": list(update_values.keys())}
+
+@router.post("/register")
+async def register(user_data:Registration) -> dict:
+    user = await UserDAO.original_user(name=user_data.name, surname=user_data.surname)
+    if user:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='Такой пользователь уже зарегестирован')
+    user_dict = user_data.model_dump()
+    user_dict['password'] = get_password_hash(user_data.password)
+    await UserDAO.add_data(**user_dict)
+    return {'message':f'Регистрация прошла успешно'}
+
+@router.post('/login')
+async def auth_user(response:Response, user_data:SSAuth):
+    check = await authentification_user(name=user_data.name, surname=user_data.surname, password=user_data.password)
+    if check is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Неверные данные для входа в аккаунт')
+    acces_token = create_acces_token({"sub": str(check.id)})
+    response.set_cookie(key='user_access_token', value=acces_token, httponly=True)
+    return {'acces_token': acces_token, 'refresh_token': None}

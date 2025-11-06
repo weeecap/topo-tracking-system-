@@ -8,6 +8,7 @@ import os
 
 from .users.router import router as user_router
 from .tasks.router import router as task_router
+from .forms.router import router as forms_router
 
 app = FastAPI (
     title = 'Мониторинг топографической документации',
@@ -30,6 +31,8 @@ app.add_middleware(
 
 app.include_router(user_router, prefix='')
 app.include_router(task_router, prefix='')
+app.include_router(forms_router, prefix='')
+
 
 @app.get('/')
 async def root():
