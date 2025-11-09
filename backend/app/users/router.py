@@ -69,7 +69,7 @@ async def update_user_data(id:int, update_data:User_Update) -> dict:
       
       return {"status": "success", "updated_fields": list(update_values.keys())}
 
-@router.post("/register")
+@router.post("/register") 
 async def register(user_data:Registration) -> dict:
     user = await UserDAO.original_user(name=user_data.name, surname=user_data.surname)
     if user:

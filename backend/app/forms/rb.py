@@ -1,10 +1,10 @@
 from typing import Optional
 
-class RBUser:
+class RBForms:
     def __init__(self,
-                 form_id:int,
-                 title:str,
-                 content:Optional[str]) -> None:
+                 form_id:Optional[int] = None,
+                 title:Optional[str] = None,
+                 content:Optional[str] = None) -> None:
         
         self.form_id=form_id
         self.title=title

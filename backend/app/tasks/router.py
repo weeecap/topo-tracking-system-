@@ -9,6 +9,7 @@ from backend.app.tasks.rb import RBTask
 router = APIRouter(prefix='/tasks')
 
 async def get_tasks_filter(
+        id: Optional[int] = Query(None),
         title:Optional[str] = Query(None),
         content: Optional[str] = Query(None),
         status: Optional[str] = Query(None),
@@ -20,7 +21,8 @@ async def get_tasks_filter(
         created_at: Optional[datetime] = Query(None)
     ) -> RBTask:
         
-        return RBTask(title=title, 
+        return RBTask(id=id,
+                      title=title, 
                       content=content, 
                       status=status, 
                       priority=priority,
@@ -34,6 +36,14 @@ async def get_tasks_filter(
 async def get_tasks(request_body:RBTask=Depends(get_tasks_filter)) -> List[SSTask]:
         tasks = await TaskDAO.find_all(**request_body.to_dict())
         return [SSTask.model_validate(task) for task in tasks]
+
+@router.get('/{id}', response_model=SSTask)
+async def get_task_by_id(id:int) -> SSTask:
+        task  = await TaskDAO.find_by_id(data_id=id)
+        if task is None:
+                raise HTTPException(status_code=400, detail='Task not found')
+        return task
+
 
 @router.post('/add/')
 async def add_task(task:SSTask) -> dict:
