@@ -2,11 +2,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 
-env_path = Path(__file__).resolve().parent.parent.parent / ".env.local"
+env_path = Path(__file__).resolve().parent.parent / ".env.local"
 load_dotenv(env_path, override=True)  
 
 class Settings:
-    DB_HOST: str = os.getenv('DB_HOST') #type: ignore
+    DB_HOST: str = "127.0.0.1"
     DB_PORT: int = int(os.getenv('DB_PORT', 5432))
     DB_NAME: str = os.getenv('DB_NAME') #type: ignore
     DB_USER: str = os.getenv('DB_USER') #type: ignore

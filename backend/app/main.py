@@ -1,10 +1,13 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from pathlib import Path
 from dotenv import load_dotenv
-import uvicorn
 import os
+
+env_path = Path(__file__).resolve().parent.parent.parent / ".env.local"
+load_dotenv(env_path, override=True)
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
 from .users.router import router as user_router
 from .tasks.router import router as task_router
@@ -33,10 +36,19 @@ app.include_router(user_router, prefix='')
 app.include_router(task_router, prefix='')
 app.include_router(forms_router, prefix='')
 
+from fastapi import APIRouter
+router = APIRouter()
+
+@router.get("/debug-db-url")
+async def debug():
+    from config import settings, get_db_url   # ← adjust import to your real settings path
+    return get_db_url
+
 
 @app.get('/')
 async def root():
     return {'Корень приложения мониторинга'}
+
 
 if __name__ == '__main__':    
     host = os.getenv("HOST", "127.0.0.1")
@@ -54,7 +66,3 @@ if __name__ == '__main__':
         reload=reload,
         log_level="info"
     )
-
-
-
-
