@@ -19,5 +19,3 @@ created_at = Annotated[datetime, mapped_column(server_default=func.now())]
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
-
-Base = declarative_base()
